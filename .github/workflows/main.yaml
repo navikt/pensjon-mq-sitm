@@ -1,0 +1,83 @@
+name: "Build and deploy pensjon-infotrygd-mq-strangler"
+on:
+  push:
+    branches:
+      - "main"
+env:
+  IMAGE: "ghcr.io/${{ github.repository }}:${{ github.sha }}"
+jobs:
+  build:
+    name: "build"
+    permissions:
+      contents: "read"
+      packages: "write"
+    runs-on: "ubuntu-latest"
+    steps:
+      - uses: "actions/checkout@v3"
+      - uses: "actions/setup-java@v3"
+        with:
+          java-version: "21"
+          distribution: 'temurin'
+          cache: "maven"
+      - name: "compile and run tests"
+        run: "mvn package"
+      - name: "Login to GitHub Docker Registry"
+        uses: "docker/login-action@v2"
+        with:
+          registry: "ghcr.io"
+          username: "${{ github.actor }}"
+          password: "${{ secrets.GITHUB_TOKEN }}"
+      - name: "Build and push the Docker image"
+        run: "docker build --pull --tag ${IMAGE} . && docker push ${IMAGE}"
+
+  deploy:
+    name: "Deploy to nais"
+    if: github.ref == 'refs/heads/main'
+    permissions:
+      contents: "read"
+      id-token: "write"
+    needs: "build"
+    runs-on: "ubuntu-latest"
+
+    strategy:
+      matrix:
+        include:
+         -  name: pensjon-infotrygd-mq-strangler-tp-q1
+            namespace: pensjon-samhandling
+            cluster: dev-fss
+            vault_serviceuser: srvtpmq
+            MQ_CHANNEL: Q1_TP
+            MQ_CONN_NAME: mqls03.preprod.local(1413)
+            MQ_MANAGER: MQLS03
+            QUEUE_INPUT: QA.Q1_TP.K278M402_COMPARE
+            QUEUE_BUS: QA.BQL01.K278M402_RECEIVE_DT
+            QUEUE_APP: Q1_TP.K278M402_RECEIVE_DT
+
+         -  name: pensjon-infotrygd-mq-strangler-tp-q2
+            namespace: pensjon-samhandling
+            cluster: dev-fss
+            vault_serviceuser: srvtpmq
+            MQ_CHANNEL: Q1_TP
+            MQ_CONN_NAME: mqls03.preprod.local(1413)
+            MQ_MANAGER: MQLS03
+            QUEUE_INPUT: QA.Q2_TP.K278M402_COMPARE
+            QUEUE_BUS: QA.BQL02.K278M402_RECEIVE_DT
+            QUEUE_APP: Q2_TP.K278M402_RECEIVE_DT
+
+    steps:
+      - uses: actions/checkout@v4
+      - uses: nais/deploy/actions/deploy@v2
+        name: "Deploy to NAIS"
+        env:
+          RESOURCE: .nais/nais.yaml
+          CLUSTER: "${{ matrix.cluster }}"
+          VAR: >-
+            name=${{ matrix.name }},
+            namespace=${{ matrix.namespace }},
+            vault_serviceuser=${{ matrix.vault_serviceuser }},
+            MQ_CHANNEL=${{ matrix.MQ_CHANNEL }},
+            MQ_CONN_NAME=${{ matrix.MQ_CONN_NAME }},
+            MQ_MANAGER=${{ matrix.MQ_MANAGER }},
+            QUEUE_INPUT=${{ matrix.QUEUE_INPUT }},
+            QUEUE_BUS=${{ matrix.QUEUE_BUS }},
+            QUEUE_APP=${{ matrix.QUEUE_APP }}

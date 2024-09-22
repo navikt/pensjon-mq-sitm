@@ -1,0 +1,47 @@
+apiVersion: "nais.io/v1alpha1"
+kind: "Application"
+metadata:
+  name: "{{{ name }}}"
+  namespace: "{{{ namespace }}}"
+  labels:
+    "team": "{{{ namespace }}}"
+spec:
+  image: {{image}}
+  liveness:
+    path: "/actuator/health/liveness"
+    initialDelay: 10
+  readiness:
+    path: "/actuator/health/readiness"
+    initialDelay: 10
+  startup:
+    path: "/actuator/health/readiness"
+    initialDelay: 20
+    failureThreshold: 100
+    periodSeconds: 1
+  replicas:
+    min: 2
+    max: 2
+  resources:
+    limits:
+      memory: "512Mi"
+    requests:
+      cpu: "200m"
+      memory: "256Mi"
+  env:
+    - name: "MQ_CHANNEL"
+      value: "{{{ MQ_CHANNEL }}}"
+    - name: "MQ_CONN_NAME"
+      value: "{{{ MQ_CONN_NAME }}}"
+    - name: "MQ_MANAGER"
+      value: "{{{ MQ_MANAGER }}}"
+    - name: "QUEUE_INPUT"
+      value: "{{{ QUEUE_INPUT }}}"
+    - name: "QUEUE_BUS"
+      value: "{{{ QUEUE_BUS }}}"
+    - name: "QUEUE_APP"
+      value: "{{{ QUEUE_APP }}}"
+  vault:
+    enabled: true
+    paths:
+      - kvPath: "{{vault_serviceuser}}"
+        mountPath: "/secrets/srvuser"

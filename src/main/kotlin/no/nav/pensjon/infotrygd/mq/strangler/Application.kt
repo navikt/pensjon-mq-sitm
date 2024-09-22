@@ -1,4 +1,4 @@
-package no.nav.pensjon.mq.sitm
+package no.nav.pensjon.infotrygd.mq.strangler
 
 import org.springframework.boot.autoconfigure.SpringBootApplication
 import org.springframework.boot.runApplication
