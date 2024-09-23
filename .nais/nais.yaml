@@ -4,7 +4,7 @@ metadata:
   name: "{{{ name }}}"
   namespace: "{{{ namespace }}}"
   labels:
-    "team": "{{{ namespace }}}"
+    "team": "{{{ team }}}"
 spec:
   image: {{image}}
   liveness:
