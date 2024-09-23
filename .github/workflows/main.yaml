@@ -43,9 +43,9 @@ jobs:
       matrix:
         include:
          -  name: pensjon-infotrygd-mq-strangler-tp-q1
-            namespace: pensjon-samhandling
+            namespace: pensjonsamhandling
             cluster: dev-fss
-            team: pensjon-samhandling
+            team: pensjonsamhandling
             vault_serviceuser: srvtpmq
             MQ_CHANNEL: Q1_TP
             MQ_CONN_NAME: mqls03.preprod.local(1413)
@@ -55,9 +55,9 @@ jobs:
             QUEUE_APP: Q1_TP.K278M402_RECEIVE_DT
 
          -  name: pensjon-infotrygd-mq-strangler-tp-q2
-            namespace: pensjon-samhandling
+            namespace: pensjonsamhandling
             cluster: dev-fss
-            team: pensjon-samhandling
+            team: pensjonsamhandling
             vault_serviceuser: srvtpmq
             MQ_CHANNEL: Q1_TP
             MQ_CONN_NAME: mqls03.preprod.local(1413)
