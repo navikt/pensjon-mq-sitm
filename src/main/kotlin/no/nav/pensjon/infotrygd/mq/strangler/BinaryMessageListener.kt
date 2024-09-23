@@ -46,14 +46,13 @@ class BinaryMessageListener(
                 try {
                     if (responseMessage != null && responseData != null) {
                         sendReply(message.jmsReplyTo, responseMessage, responseData)
+                    } else {
+                        logger.error("Fikk ikke svar fra bus")
                     }
                 } catch (e: Exception) {
                     logger.error("Feil ved sending av svar", e)
                 }
             }
-
-        Thread.sleep(100_000)
-        throw RuntimeException("foo")
     }
 
     private fun sendMessageAndReceiveResponse(
