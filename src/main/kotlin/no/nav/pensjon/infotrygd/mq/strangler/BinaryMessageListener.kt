@@ -5,11 +5,13 @@ import jakarta.jms.BytesMessage
 import jakarta.jms.Destination
 import jakarta.jms.Message
 import jakarta.jms.Session
+import no.nav.pensjon.infotrygd.mq.strangler.infotrygd.InfotrygdMessage
 import org.slf4j.LoggerFactory.getLogger
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.jms.annotation.JmsListener
 import org.springframework.jms.core.JmsTemplate
 import org.springframework.stereotype.Component
+import java.nio.charset.Charset
 import java.util.concurrent.CompletableFuture.supplyAsync
 
 @Component
@@ -35,7 +37,7 @@ class BinaryMessageListener(
                 val bytesBus = (responseBus as? BytesMessage)?.asByteArray()
                 val bytesApp = (responseApp as? BytesMessage)?.asByteArray()
 
-                compareResponses(bytesBus, bytesApp)
+                compareResponses(bytesBus, bytesApp, charset)
 
                 bytesBus
             }
@@ -68,19 +70,27 @@ class BinaryMessageListener(
         }
     }
 
-    private fun compareResponses(bytesBus: ByteArray?, bytesApp: ByteArray?) {
-        if (bytesBus == null && bytesApp == null) {
-            logger.info("Svar fra bus og app var null")
-        } else if (bytesBus == null) {
-            logger.info("Svar fra bus var null")
-        } else if (bytesApp == null) {
-            logger.info("Svar fra app var null")
-        } else if (bytesBus.size != bytesApp.size) {
-            logger.info("Ulik lenge på meldinger bus=${bytesBus.size}, app=${bytesApp.size}")
-        } else if (!bytesBus.contentEquals(bytesApp)) {
-            logger.info("Innholdet er forskjellig fra bus og app")
-        } else {
-            logger.info("Innholdet er likt mellom bus og app")
+    private fun compareResponses(bytesBus: ByteArray?, bytesApp: ByteArray?, charset: String) {
+        try {
+            if (bytesBus == null && bytesApp == null) {
+                logger.info("Svar fra bus og app var null")
+            } else if (bytesBus == null) {
+                logger.info("Svar fra bus var null")
+            } else if (bytesApp == null) {
+                logger.info("Svar fra app var null")
+            } else if (bytesBus.size != bytesApp.size || !bytesBus.contentEquals(bytesApp)) {
+                logger.info("Innholdet er forskjellig, bus=${bytesBus.size}, app=${bytesApp.size}")
+
+                val messageBus = InfotrygdMessage.deserialize(bytesBus, Charset.forName(charset))
+                val messageApp = InfotrygdMessage.deserialize(bytesApp, Charset.forName(charset))
+
+                logger.info("Message bus {}", messageBus)
+                logger.info("Message app {}", messageApp)
+            } else {
+                logger.info("Innholdet er likt mellom bus og app")
+            }
+        } catch (e: Exception) {
+            logger.error("Feil ved sammenligning av svar", e)
         }
     }
 
