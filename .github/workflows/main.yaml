@@ -73,6 +73,7 @@ jobs:
         env:
           RESOURCE: .nais/nais.yaml
           CLUSTER: "${{ matrix.cluster }}"
+          TEAM: "${{ matrix.team }}"
           VAR: >-
             name=${{ matrix.name }},
             namespace=${{ matrix.namespace }},
