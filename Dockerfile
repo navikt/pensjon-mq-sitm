@@ -17,7 +17,7 @@ COPY java-opts.sh .
 
 RUN chmod +x java-opts.sh
 
-COPY target/adapter*jar app.jar
+COPY target/strangler*jar app.jar
 
 ENTRYPOINT ["/usr/bin/dumb-init", "--"]
 CMD ["bash", "-c", "source ./java-opts.sh && exec java ${DEFAULT_JVM_OPTS} ${JAVA_OPTS} -jar app.jar ${RUNTIME_OPTS} $@"]
