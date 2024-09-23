@@ -1,6 +1,7 @@
 package no.nav.pensjon.infotrygd.mq.strangler
 
 import com.ibm.msg.client.jakarta.wmq.WMQConstants.JMS_IBM_CHARACTER_SET
+import com.ibm.msg.client.jakarta.wmq.WMQConstants.JMS_IBM_ENCODING
 import jakarta.jms.BytesMessage
 import jakarta.jms.Destination
 import jakarta.jms.Message
@@ -100,11 +101,12 @@ class BinaryMessageListener(
         }
 
     private fun sendReply(replyQueue: Destination, responseMessage: Message, response: ByteArray) =
-        jmsTemplate.send(replyQueue) {
-            it.createBytesMessage().apply {
+        jmsTemplate.send(replyQueue) { session ->
+            session.createBytesMessage().apply {
                 jmsCorrelationID = responseMessage.jmsCorrelationID
                 writeBytes(response)
                 responseMessage.getStringProperty(JMS_IBM_CHARACTER_SET)?.let { charset -> setStringProperty(JMS_IBM_CHARACTER_SET, charset) }
+                (responseMessage.getObjectProperty(JMS_IBM_ENCODING) as? Int)?.let { setIntProperty(JMS_IBM_ENCODING, it) }
             }
         }
 }
