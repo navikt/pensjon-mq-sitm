@@ -1,5 +1,6 @@
 package no.nav.pensjon.infotrygd.mq.strangler
 
+import com.ibm.msg.client.jakarta.jms.JmsMessage
 import com.ibm.msg.client.jakarta.wmq.WMQConstants.JMS_IBM_CHARACTER_SET
 import com.ibm.msg.client.jakarta.wmq.WMQConstants.JMS_IBM_ENCODING
 import jakarta.jms.BytesMessage
@@ -18,14 +19,22 @@ import java.util.concurrent.CompletableFuture.supplyAsync
 @Component
 class BinaryMessageListener(
     private val jmsTemplate: JmsTemplate,
+    @Value("\${queue.input}") private val queueInput: String,
     @Value("\${queue.bus}") private val queueBus: String,
     @Value("\${queue.app}") private val queueApp: String,
 ) {
     private val logger = getLogger(javaClass)
 
     @JmsListener(destination = "\${queue.input}")
-    fun receiveMessage(
+    fun onMessage(
+        bytes: ByteArray,
         message: BytesMessage,
+    ): Unit = mdc(
+        "jms.charset" to (message as? JmsMessage)?.getStringProperty(JMS_IBM_CHARACTER_SET),
+        "jms.correlationId" to message.jmsCorrelationID,
+        "jms.messageId" to message.jmsMessageID,
+        "jms.queueName" to queueInput,
+        "jms.replyTo" to message.jmsReplyTo.toString(),
     ) {
         val messageData = message.asByteArray()
         val charset = message.getStringProperty(JMS_IBM_CHARACTER_SET)
@@ -53,6 +62,7 @@ class BinaryMessageListener(
                     logger.error("Feil ved sending av svar", e)
                 }
             }
+            .join()
     }
 
     private fun sendMessageAndReceiveResponse(
