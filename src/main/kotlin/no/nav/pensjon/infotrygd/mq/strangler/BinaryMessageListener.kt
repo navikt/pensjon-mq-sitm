@@ -37,14 +37,14 @@ class BinaryMessageListener(
                 val bytesBus = (responseBus as? BytesMessage)?.asByteArray()
                 val bytesApp = (responseApp as? BytesMessage)?.asByteArray()
 
-                compareResponses(bytesBus, bytesApp, charset)
+                compareResponses(responseBus, bytesBus, responseApp, bytesApp)
 
-                bytesBus
+                responseBus to bytesBus
             }
-            .thenAccept {
+            .thenAccept { (responseMessage, responseData) ->
                 try {
-                    if (it != null) {
-                        sendReply(message.jmsReplyTo, it, charset, correlationId)
+                    if (responseMessage != null && responseData != null) {
+                        sendReply(message.jmsReplyTo, responseMessage, responseData)
                     }
                 } catch (e: Exception) {
                     logger.error("Feil ved sending av svar", e)
@@ -70,7 +70,7 @@ class BinaryMessageListener(
         }
     }
 
-    private fun compareResponses(bytesBus: ByteArray?, bytesApp: ByteArray?, charset: String) {
+    private fun compareResponses(responseBus: Message?, bytesBus: ByteArray?, responseApp: Message?, bytesApp: ByteArray?) {
         try {
             if (bytesBus == null && bytesApp == null) {
                 logger.info("Svar fra bus og app var null")
@@ -81,8 +81,8 @@ class BinaryMessageListener(
             } else if (bytesBus.size != bytesApp.size || !bytesBus.contentEquals(bytesApp)) {
                 logger.info("Innholdet er forskjellig, bus=${bytesBus.size}, app=${bytesApp.size}")
 
-                val messageBus = InfotrygdMessage.deserialize(bytesBus, Charset.forName(charset))
-                val messageApp = InfotrygdMessage.deserialize(bytesApp, Charset.forName(charset))
+                val messageBus = InfotrygdMessage.deserialize(bytesBus, Charset.forName(responseBus!!.getStringProperty(JMS_IBM_CHARACTER_SET) ?: "ibm277"))
+                val messageApp = InfotrygdMessage.deserialize(bytesApp, Charset.forName(responseApp!!.getStringProperty(JMS_IBM_CHARACTER_SET) ?: "ibm277"))
 
                 logger.info("Message bus {}", messageBus)
                 logger.info("Message app {}", messageApp)
@@ -99,12 +99,12 @@ class BinaryMessageListener(
             readBytes(it)
         }
 
-    private fun sendReply(replyQueue: Destination, response: ByteArray, charset: String, correlationId: String) =
+    private fun sendReply(replyQueue: Destination, responseMessage: Message, response: ByteArray) =
         jmsTemplate.send(replyQueue) {
             it.createBytesMessage().apply {
-                jmsCorrelationID = correlationId
+                jmsCorrelationID = responseMessage.jmsCorrelationID
                 writeBytes(response)
-                setStringProperty(JMS_IBM_CHARACTER_SET, charset)
+                responseMessage.getStringProperty(JMS_IBM_CHARACTER_SET)?.let { charset -> setStringProperty(JMS_IBM_CHARACTER_SET, charset) }
             }
         }
 }
