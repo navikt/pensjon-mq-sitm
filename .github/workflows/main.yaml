@@ -74,14 +74,4 @@ jobs:
           RESOURCE: .nais/nais.yaml
           CLUSTER: "${{ matrix.cluster }}"
           TEAM: "${{ matrix.team }}"
-          VAR: >-
-            name=${{ matrix.name }},
-            namespace=${{ matrix.namespace }},
-            team=${{ matrix.team }},
-            vault_serviceuser=${{ matrix.vault_serviceuser }},
-            MQ_CHANNEL=${{ matrix.MQ_CHANNEL }},
-            MQ_CONN_NAME=${{ matrix.MQ_CONN_NAME }},
-            MQ_MANAGER=${{ matrix.MQ_MANAGER }},
-            QUEUE_INPUT=${{ matrix.QUEUE_INPUT }},
-            QUEUE_BUS=${{ matrix.QUEUE_BUS }},
-            QUEUE_APP=${{ matrix.QUEUE_APP }}
+          VAR: name="${{ matrix.name }}",namespace="${{ matrix.namespace }}",team="${{ matrix.team }}",vault_serviceuser="${{ matrix.vault_serviceuser }}",MQ_CHANNEL="${{ matrix.MQ_CHANNEL }}",MQ_CONN_NAME="${{ matrix.MQ_CONN_NAME }}",MQ_MANAGER="${{ matrix.MQ_MANAGER }}",QUEUE_INPUT="${{ matrix.QUEUE_INPUT }}",QUEUE_BUS="${{ matrix.QUEUE_BUS }}",QUEUE_APP="${{ matrix.QUEUE_APP }}"
