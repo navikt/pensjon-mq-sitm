@@ -61,7 +61,7 @@ jobs:
             team: pensjonsamhandling
             vault_serviceuser: srvtpmq
             MQ_APP_NAME: infot-mq-strangler-tp-q2
-            MQ_CHANNEL: Q1_TP
+            MQ_CHANNEL: Q2_TP
             MQ_CONN_NAME: mqls03.preprod.local(1413)
             MQ_MANAGER: MQLS03
             QUEUE_INPUT: QA.Q2_TP.K278M402_COMPARE
