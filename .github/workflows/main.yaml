@@ -42,7 +42,7 @@ jobs:
     strategy:
       matrix:
         include:
-         -  name: pensjon-infotrygd-mq-strangler-tp-q1
+         -  name: infotrygd-mq-strangler-tp-q1
             namespace: pensjonsamhandling
             cluster: dev-fss
             team: pensjonsamhandling
@@ -54,7 +54,7 @@ jobs:
             QUEUE_BUS: QA.BQL01.K278M402_RECEIVE_DT
             QUEUE_APP: Q1_TP.K278M402_RECEIVE_DT
 
-         -  name: pensjon-infotrygd-mq-strangler-tp-q2
+         -  name: infotrygd-mq-strangler-tp-q2
             namespace: pensjonsamhandling
             cluster: dev-fss
             team: pensjonsamhandling
