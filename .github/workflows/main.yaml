@@ -42,11 +42,12 @@ jobs:
     strategy:
       matrix:
         include:
-         -  name: infotrygd-mq-strangler-tp-q1
+         -  name: pensjon-infotrygd-mq-strangler-tp-q1
             namespace: pensjonsamhandling
             cluster: dev-fss
             team: pensjonsamhandling
             vault_serviceuser: srvtpmq
+            MQ_APP_NAME: infot-mq-strangler-tp-q1
             MQ_CHANNEL: Q1_TP
             MQ_CONN_NAME: mqls03.preprod.local(1413)
             MQ_MANAGER: MQLS03
@@ -54,11 +55,12 @@ jobs:
             QUEUE_BUS: QA.BQL01.K278M402_RECEIVE_DT
             QUEUE_APP: Q1_TP.K278M402_RECEIVE_DT
 
-         -  name: infotrygd-mq-strangler-tp-q2
+         -  name: pensjon-infotrygd-mq-strangler-tp-q2
             namespace: pensjonsamhandling
             cluster: dev-fss
             team: pensjonsamhandling
             vault_serviceuser: srvtpmq
+            MQ_APP_NAME: infot-mq-strangler-tp-q2
             MQ_CHANNEL: Q1_TP
             MQ_CONN_NAME: mqls03.preprod.local(1413)
             MQ_MANAGER: MQLS03
