@@ -28,8 +28,8 @@ spec:
       cpu: "200m"
       memory: "256Mi"
   env:
-    - name: "APP_NAME"
-      value: "{{{ name }}}"
+    - name: "MQ_APP_NAME"
+      value: "{{{ MQ_APP_NAME }}}"
     - name: "MQ_CHANNEL"
       value: "{{{ MQ_CHANNEL }}}"
     - name: "MQ_CONN_NAME"
